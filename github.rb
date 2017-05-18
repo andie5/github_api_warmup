@@ -23,28 +23,39 @@ class GithubAPI
     
   end
 
+# Display the names of 10 latest repos for the given user provided by the token id
   def repo_list
 
-    repo_list = @github.repos.list
+    repo_list = @github.repos.list.sort_by{|repo| repo.created_at}.reverse
+    i = 0
 
-    repo_list.each {|repo| @repo_names << repo.name}
+    repo_list.each do |repo|
+      @repo_names << repo.name
+      i+=1
+      break if i==10
+    end
+
     @repo_names.each{ |repo| puts "#{repo}"}
-
-
     sleep(0.5)
   end
 
-  def commitsRepo
 
-    # @repo_names.each do |repo|
-    #   commits = @github.repos.commits.list("andie5", repo, sha: '...'
-    # end
-    commit_list = @github.repos.commits.list("andie5", "learn_ruby")
+# Print the last 10 commits of each repo
+  def commits_by_repo(username)
+    @repo_names.each do |repo|
 
-    commit_list.each {|commit| @commit_messages << commit['commit']['message']}
-    @commit_messages.each{ |msg| puts "#{msg}"}
+      # Get the commits for a repo
+      commit_list = @github.repos.commits.list(username, repo).sort_by{|repo| repo.date}.reverse
 
-    sleep(0.5)
+      i=0
+      commit_list.each do |commit| 
+        puts "#{commit['commit']['message']}"
+        i+=1
+        break if i==10 
+      end
+      puts ""
+      sleep(0.5)
+    end
   end
 
 end
